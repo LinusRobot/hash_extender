@@ -10,9 +10,11 @@ endif
 OS		:= $(shell uname | tr '/[[:lower:]]' '_[[:upper:]]')
 
 # These are the specifications of the toolchain
+# -Werror
 CC		:= gcc
-CFLAGS		:= -std=c89 -g -oS -Wall -Werror -Wno-deprecated
-CPPFLAGS	:= -D_BSD_SOURCE -D$(OS) $(WHIRLPOOL)
+CFLAGS		:= -std=c89 -g -oS -Wall -Wno-deprecated -Werror
+#CPPFLAGS	:= -D_DEFAULT_SOURCE -D$(OS) $(WHIRLPOOL)   # since glibc 2.19
+CPPFLAGS	:= -D_BSD_SOURCE -D$(OS) $(WHIRLPOOL) #up to and include glibc2.19
 LDFLAGS		:= -lssl -lcrypto
 
 BIN_MAIN	:= hash_extender
@@ -36,7 +38,7 @@ $(BIN_TEST): $(OBJS_TEST)
 
 %.o: %.c
 	@echo [CC] $@
-	@$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 clean:
 	@echo [RM] \*.o
