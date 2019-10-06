@@ -39,6 +39,7 @@
 #include "buffer.h"
 #include "test.h"
 #include "util.h"
+#include "sm3/sm3.h"
 
 static void md4_hash(uint8_t *data, uint64_t length, uint8_t *buffer, uint8_t *state, uint64_t state_size);
 static void md5_hash(uint8_t *data, uint64_t length, uint8_t *buffer, uint8_t *state, uint64_t state_size);
@@ -47,6 +48,7 @@ static void sha_hash(uint8_t *data, uint64_t length, uint8_t *buffer, uint8_t *s
 static void sha1_hash(uint8_t *data, uint64_t length, uint8_t *buffer, uint8_t *state, uint64_t state_size);
 static void sha256_hash(uint8_t *data, uint64_t length, uint8_t *buffer, uint8_t *state, uint64_t state_size);
 static void sha512_hash(uint8_t *data, uint64_t length, uint8_t *buffer, uint8_t *state, uint64_t state_size);
+static void sm3_hash(uint8_t *data, uint64_t length, uint8_t *buffer, uint8_t *state, uint64_t state_size);
 #ifndef DISABLE_WHIRLPOOL
 static void whirlpool_hash(uint8_t *data, uint64_t length, uint8_t *buffer, uint8_t *state, uint64_t state_size);
 #endif
@@ -77,6 +79,7 @@ static hash_type_t hash_types[] = {
 #ifndef DISABLE_WHIRLPOOL
   {"whirlpool", WHIRLPOOL_DIGEST_LENGTH, false, 64,  32, whirlpool_hash},
 #endif
+  {"sm3",	SM3_DIGEST_LENGTH,	 false,  SM3_BLOCK_SIZE, 8, sm3_hash},
   {0, 0, 0, 0, 0}
 };
 
@@ -91,6 +94,7 @@ const char *hash_type_list =
 #ifndef DISABLE_WHIRLPOOL
   ", whirlpool"
 #endif
+  ", sm3"
   ;
 
 char *hash_type_array[] = {
@@ -104,6 +108,7 @@ char *hash_type_array[] = {
 #ifndef DISABLE_WHIRLPOOL
   "whirlpool",
 #endif
+  "sm3",
   NULL
 };
 
@@ -518,3 +523,27 @@ static void whirlpool_hash(uint8_t *data, uint64_t length, uint8_t *buffer, uint
 }
 
 #endif
+static void sm3_hash(uint8_t *data, uint64_t length, uint8_t *buffer, uint8_t *state, uint64_t state_size)
+{
+  sm3_ctx_t ctx;
+  sm3_init(&ctx);
+  
+  uint64_t i;
+  if (state)
+  {
+    for (i = 0; i < state_size; ++i)
+	sm3_update(&ctx, "A", 1);	
+    ctx.digest[0] = htobe32(((int*)state)[0]);
+    ctx.digest[1] = htobe32(((int*)state)[1]);
+    ctx.digest[2] = htobe32(((int*)state)[2]);
+    ctx.digest[3] = htobe32(((int*)state)[3]);
+    ctx.digest[4] = htobe32(((int*)state)[4]);
+    ctx.digest[5] = htobe32(((int*)state)[5]);
+    ctx.digest[6] = htobe32(((int*)state)[6]);
+    ctx.digest[7] = htobe32(((int*)state)[7]);
+  }
+  sm3_update(&ctx, data, length);
+  sm3_final(&ctx, buffer);
+
+  memset(&ctx, 0, sizeof(sm3_ctx_t));  
+}

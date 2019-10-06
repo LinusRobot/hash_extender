@@ -12,16 +12,16 @@ OS		:= $(shell uname | tr '/[[:lower:]]' '_[[:upper:]]')
 # These are the specifications of the toolchain
 # -Werror
 CC		:= gcc
-CFLAGS		:= -std=c89 -g -oS -Wall -Wno-deprecated -Werror
+CFLAGS		:= -std=gnu99 -g -oS -Wall -Wno-deprecated 
 #CPPFLAGS	:= -D_DEFAULT_SOURCE -D$(OS) $(WHIRLPOOL)   # since glibc 2.19
-CPPFLAGS	:= -D_BSD_SOURCE -D$(OS) $(WHIRLPOOL) #up to and include glibc2.19
+CPPFLAGS	:= -D_BSD_SOURCE -D$(OS) $(WHIRLPOOL) -DSTRICT_ALIGNMENT#up to and include glibc2.19
 LDFLAGS		:= -lssl -lcrypto
 
 BIN_MAIN	:= hash_extender
 BIN_TEST	:= hash_extender_test
 BINS		:= $(BIN_MAIN) $(BIN_TEST)
 
-SRCS		:= $(wildcard *.c)
+SRCS		:= $(wildcard *.c sm3/*.c)
 OBJS		:= $(patsubst %.c,%.o,$(SRCS))
 OBJS_MAIN	:= $(filter-out $(BIN_TEST).o,$(OBJS))
 OBJS_TEST	:= $(filter-out $(BIN_MAIN).o,$(OBJS))
