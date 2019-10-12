@@ -317,4 +317,26 @@ HMAC is the real solution. HMAC is designed for securely hashing data with a sec
 
 As usual, use constructs designed for what you're doing rather than doing it yourself. The key to all crypto! [pun intended]
 
+----2019.10.12-----
+## add sm3 function for hash extender.
+
+for example:
+
+    $ echo -n secretdata |gmssl sm3
+    
+    (stdin)= 3bceb5ecbd2555b0c5214ec568fa96c766e41ad2567f0f8e8726d68cf244f008
+    
+    $ ./hash_extender --data data --secret 6 --append append --signature 3bceb5ecbd2555b0c5214ec568fa96c766e41ad2567f0f8e8726d68cf244f008 --format sm3
+    
+    Type: sm3
+    Secret length: 6
+    New signature: 08c066477b97856207b5b4db2b61c6c0320a57b1fe4c1741474417c6fdeaf9ef
+    New string: 64617461800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000050617070656e64
+    
+    $ echo -n -e "secretdata\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x50append"|gmssl sm3
+    
+    (stdin)= 08c066477b97856207b5b4db2b61c6c0320a57b1fe4c1741474417c6fdeaf9ef
+    
+so when you dont know secret , you can generate hash key.
+
 **And finally, you can grab the hash_extender tool on [Github](https://github.com/iagox86/hash_extender)!**
