@@ -26,5 +26,6 @@ SBOX to LAT
         for i in range(256)  
 
           LAT[a][b] += a.i ^ b.sbox_val[i]
+        LAT[a][b]  = 256 - LAT[a][b]
 
         LAT[a][b]  = LAT[a][b] - 128
